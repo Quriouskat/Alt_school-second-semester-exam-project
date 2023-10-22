@@ -1,0 +1,34 @@
+---
+- name: Executing bash script on the slave node
+  hosts: 192.168.56.6
+  remote_user: root
+  become: true
+  become_exe: /bin/bash
+
+  tasks:
+    # Install LAMPStack via Bash Script
+    - name: Copy LAMPStack script to slave_server
+      ansible.builtin.copy:
+        src: /Users/HP/Altproject/vagrant/boxes/master/lampstack.sh
+        dest: /root
+        owner: root
+        group: root
+        mode: '0775'
+    - name: Execute Script
+      ansible.builtin.command:
+        cmd: bash /root/lampstack.sh
+
+---
+- name: Create Cron Job 
+  hosts: 192.168.56.6
+
+  tasks:
+    # Create cron job to check slave_server uptime every 12am
+    - name: slave_server uptime
+      cron:
+        name: "CheckUptime"
+        minute: "0"
+        hour: "0"
+        job: "/Users/HP/Altproject/vagrant/boxes/master/lampstack.sh"
+
+
